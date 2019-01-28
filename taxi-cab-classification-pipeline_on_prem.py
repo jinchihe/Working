@@ -141,7 +141,7 @@ def roc_op(predictions, output, step_name='roc'):
 def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name, step_name='deploy'):
     return dsl.ContainerOp(
         name=step_name,
-        image='pipeline-deployment-test:latest',
+        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:2ed60100d1db9efeb38c6c358f90b21c144179be',
         arguments=[
             '--cluster-name', 'tfx-taxi-pipeline-onprem',
             '--model-path', model,
