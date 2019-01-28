@@ -198,5 +198,4 @@ def taxi_cab_classification(
 
 if __name__ == '__main__':
     import kfp.compiler as compiler
-
     compiler.Compiler().compile(taxi_cab_classification, __file__ + '.tar.gz')
