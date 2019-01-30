@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +23,7 @@ def dataflow_tf_data_validation_op(inference_data, validation_data,
                                    validation_output, step_name='validation'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfdv:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfdv:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
             '--csv-data-for-inference', inference_data,
             '--csv-data-to-validate', validation_data,
@@ -44,7 +45,7 @@ def dataflow_tf_transform_op(train_data, evaluation_data, schema,
                              transform_output, step_name='preprocess'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tft:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tft:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
             '--train', train_data,
             '--eval', evaluation_data,
@@ -63,7 +64,7 @@ def tf_train_op(transformed_data_dir, schema, learning_rate: float, hidden_layer
                 training_output, step_name='training'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-tf-trainer:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-tf-trainer:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
             '--transformed-data-dir', transformed_data_dir,
             '--schema', schema,
@@ -83,7 +84,7 @@ def dataflow_tf_model_analyze_op(model: 'TensorFlow model', evaluation_data, sch
                                  step_name='analysis'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfma:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfma:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
             '--model', model,
             '--eval', evaluation_data,
@@ -102,7 +103,7 @@ def dataflow_tf_predict_op(evaluation_data, schema, target: str,
                            step_name='prediction'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tf-predict:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tf-predict:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
             '--data', evaluation_data,
             '--schema', schema,
@@ -119,7 +120,7 @@ def dataflow_tf_predict_op(evaluation_data, schema, target: str,
 def confusion_matrix_op(predictions, output, step_name='confusion_matrix'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-local-confusion-matrix:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-local-confusion-matrix:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
             '--output', '%s/{{workflow.name}}/confusionmatrix' % output,
             '--predictions', predictions,
@@ -130,7 +131,7 @@ def confusion_matrix_op(predictions, output, step_name='confusion_matrix'):
 def roc_op(predictions, output, step_name='roc'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-local-roc:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-local-roc:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
             '--output', '%s/{{workflow.name}}/roc' % output,
             '--predictions', predictions,
@@ -141,9 +142,9 @@ def roc_op(predictions, output, step_name='roc'):
 def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name, step_name='deploy'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:2ed60100d1db9efeb38c6c358f90b21c144179be',
+        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:be19cbc2591a48d2ef5ca715c34ecae8223cf454',
         arguments=[
-            '--cluster-name', 'tfx-taxi-pipeline-onprem',
+            '--cluster-name', 'tfx-taxi-pipeline-on-prem',
             '--model-path', model,
             '--server-name', tf_server_name,
             '--model-storage-type', 'nfs',
@@ -158,7 +159,7 @@ def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name, step
 )
 def taxi_cab_classification(
         pvc_name='pipeline-pvc',
-        project='tfx-taxi-pipeline-onprem',
+        project='tfx-taxi-pipeline-on-prem',
         column_names='taxi-cab-classification/column-names.json',
         key_columns='trip_start_timestamp',
         train='taxi-cab-classification/train.csv',
@@ -170,23 +171,21 @@ def taxi_cab_classification(
         steps=3000,
         analyze_slice_column='trip_start_hour'):
     tf_server_name = 'taxi-cab-classification-model-{{workflow.name}}'
-    pvc_name = '%s/test' % pvc_name
-    validation = dataflow_tf_data_validation_op('/mnt/%s' % train, '/mnt/%s' % evaluation, '/mnt/%s' % column_names, key_columns, project, mode,
-                                                '/mnt').add_volume(k8s_client.V1Volume(name='pipeline-nfs',
-                                                                                       persistent_volume_claim=k8s_client.V1PersistentVolumeClaimVolumeSource(
-                                                                                           claim_name=pvc_name))).add_volume_mount(
-        k8s_client.V1VolumeMount(mount_path='/mnt', name='pipeline-nfs'))
-    preprocess = dataflow_tf_transform_op('/mnt/%s' % train, '/mnt/%s' % evaluation, validation.outputs['schema'], project, mode,
-                                          '/mnt/%s' % preprocess_module, '/mnt').add_volume_mount(
+    validation = dataflow_tf_data_validation_op('/mnt/%s' % train, '/mnt/%s' % evaluation, '/mnt/%s' % column_names,
+                                                key_columns, project, mode, '/mnt').add_volume(
+        k8s_client.V1Volume(name='pipeline-nfs', persistent_volume_claim=k8s_client.V1PersistentVolumeClaimVolumeSource(
+            claim_name='pipeline-pvc'))).add_volume_mount(k8s_client.V1VolumeMount(mount_path='/mnt', name='pipeline-nfs'))
+    preprocess = dataflow_tf_transform_op('/mnt/%s' % train, '/mnt/%s' % evaluation, validation.outputs['schema'],
+                                          project, mode, '/mnt/%s' % preprocess_module, '/mnt').add_volume_mount(
         k8s_client.V1VolumeMount(mount_path='/mnt', name='pipeline-nfs'))
     training = tf_train_op(preprocess.output, validation.outputs['schema'], learning_rate, hidden_layer_size, steps,
                            'tips', '/mnt/%s' % preprocess_module, '/mnt').add_volume_mount(
         k8s_client.V1VolumeMount(mount_path='/mnt', name='pipeline-nfs'))
-    analysis = dataflow_tf_model_analyze_op(training.output, '/mnt/%s' % evaluation, validation.outputs['schema'], project, mode,
-                                            analyze_slice_column, '/mnt').add_volume_mount(
+    analysis = dataflow_tf_model_analyze_op(training.output, '/mnt/%s' % evaluation, validation.outputs['schema'],
+                                            project, mode, analyze_slice_column, '/mnt').add_volume_mount(
         k8s_client.V1VolumeMount(mount_path='/mnt', name='pipeline-nfs'))
-    prediction = dataflow_tf_predict_op('/mnt/%s' % evaluation, validation.outputs['schema'], 'tips', training.output, mode,
-                                        project, '/mnt').add_volume_mount(
+    prediction = dataflow_tf_predict_op('/mnt/%s' % evaluation, validation.outputs['schema'], 'tips', training.output,
+                                        mode, project, '/mnt').add_volume_mount(
         k8s_client.V1VolumeMount(mount_path='/mnt', name='pipeline-nfs'))
     cm = confusion_matrix_op(prediction.output, '/mnt').add_volume_mount(
         k8s_client.V1VolumeMount(mount_path='/mnt', name='pipeline-nfs'))
@@ -198,4 +197,5 @@ def taxi_cab_classification(
 
 if __name__ == '__main__':
     import kfp.compiler as compiler
+
     compiler.Compiler().compile(taxi_cab_classification, __file__ + '.tar.gz')
