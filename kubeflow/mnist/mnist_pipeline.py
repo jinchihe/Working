@@ -9,7 +9,7 @@ def mnist_train_op(data_dir: str, model_dir: str,
                    learning_rate: float, step_name='Training'):
     return dsl.ContainerOp(
         name=step_name,
-        image='mnist_hjc:1.8',
+        image='mnist_hjc:1.9',
         arguments=[
             '/opt/model.py',
             '--tf-data-dir', data_dir,
@@ -23,16 +23,14 @@ def mnist_train_op(data_dir: str, model_dir: str,
     )
 
 
-def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name, step_name='deploy_serving'):
+def kubeflow_deploy_op(model: 'TensorFlow model', tf_model_name, tf_model_port: int, step_name='deploy_serving'):
     return dsl.ContainerOp(
         name=step_name,
-        image='pipeline-deployment-test1:last',
+        image='tensorflow/serving:1.11.1',
         arguments=[
-            '--cluster-name', 'mnist-pipeline',
-            '--model-path', model,
-            '--namespace', 'mnist'
-            '--server-name', tf_server_name,
-            '--pvc-name', pvc_name,
+            '--model_base_path=%s' % model,
+            '--model_name=%s' % tf_model_name,
+            '--port=%s'% tf_model_port,
         ]
     )
 
@@ -46,15 +44,16 @@ def mnist_pipeline(
         model='mnist',
         tf_data_dir='data',
         tf_model_dir='model',
-        tf_export_dir='model/export/export',
+        tf_export_dir='model/export',
         batch_size=100,
         training_steps=200,
-        learning_rate=0.01):
+        learning_rate=0.01,
+        tf_model_port=9000):
     mnist_training = mnist_train_op('/mnt/%s' % tf_data_dir, '/mnt/%s' % tf_model_dir, '/mnt/%s' % tf_export_dir,
                               training_steps, batch_size, learning_rate).add_volume(
         k8s_client.V1Volume(name='mnist-nfs', persistent_volume_claim=k8s_client.V1PersistentVolumeClaimVolumeSource(
             claim_name='mnist-pvc'))).add_volume_mount(k8s_client.V1VolumeMount(mount_path='/mnt', name='mnist-nfs'))
-    deploy_serving = kubeflow_deploy_op(mnist_training.output, model, pvc_name).add_volume_mount(
+    deploy_serving = kubeflow_deploy_op(mnist_training.output, model, tf_model_port).add_volume_mount(
         k8s_client.V1VolumeMount(mount_path='/mnt', name='mnist-nfs'))
 
 
