@@ -230,8 +230,7 @@ def main(_):
     print("Done exporting the model")
 
   with open('/output.txt', 'w') as f:
-    f.write(args.tf_model_dir)
+    f.write(args.tf_export_dir)
 
 if __name__ == '__main__':
   tf.app.run()
-
