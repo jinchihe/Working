@@ -147,7 +147,6 @@ def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name, step
             '--cluster-name', 'tfx-taxi-pipeline-on-prem',
             '--model-path', model,
             '--server-name', tf_server_name,
-            '--model-storage-type', 'nfs',
             '--pvc-name', pvc_name,
         ]
     )
