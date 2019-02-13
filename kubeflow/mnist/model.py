@@ -229,8 +229,11 @@ def main(_):
     classifier.export_savedmodel(args.tf_export_dir, serving_input_receiver_fn=serving_fn)
     print("Done exporting the model")
 
-  with open('/output.txt', 'w') as f:
+  with open('/export.txt', 'w') as f:
     f.write(args.tf_export_dir)
+
+  with open('/model.txt', 'w') as f:
+    f.write(args.tf_model_dir)
 
 if __name__ == '__main__':
   tf.app.run()
