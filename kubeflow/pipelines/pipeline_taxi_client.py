@@ -42,7 +42,8 @@ def _do_inference(model_handle, examples_file, num_examples, model_name):
     examples = []
     for _ in range(num_examples):
         one_line = input_file.readline().rstrip()
-        examples.append(one_line)
+        one_line_no_tips = ','.join(one_line.split(",")[:-1])
+        examples.append(one_line_no_tips)
         if not one_line:
             print('End of example file reached')
             break
