@@ -23,7 +23,7 @@ def dataflow_tf_data_validation_op(inference_data, validation_data,
                                    validation_output, step_name='validation'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfdv:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfdv:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--csv-data-for-inference', inference_data,
             '--csv-data-to-validate', validation_data,
@@ -45,7 +45,7 @@ def dataflow_tf_transform_op(train_data, evaluation_data, schema,
                              transform_output, step_name='preprocess'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tft:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tft:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--train', train_data,
             '--eval', evaluation_data,
@@ -64,7 +64,7 @@ def tf_train_op(transformed_data_dir, schema, learning_rate: float, hidden_layer
                 training_output, step_name='training'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-tf-trainer:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-tf-trainer:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--transformed-data-dir', transformed_data_dir,
             '--schema', schema,
@@ -84,7 +84,7 @@ def dataflow_tf_model_analyze_op(model: 'TensorFlow model', evaluation_data, sch
                                  step_name='analysis'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfma:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tfma:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--model', model,
             '--eval', evaluation_data,
@@ -103,7 +103,7 @@ def dataflow_tf_predict_op(evaluation_data, schema, target: str,
                            step_name='prediction'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tf-predict:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-dataflow-tf-predict:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--data', evaluation_data,
             '--schema', schema,
@@ -120,7 +120,7 @@ def dataflow_tf_predict_op(evaluation_data, schema, target: str,
 def confusion_matrix_op(predictions, output, step_name='confusion_matrix'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-local-confusion-matrix:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-local-confusion-matrix:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--output', '%s/{{workflow.name}}/confusionmatrix' % output,
             '--predictions', predictions,
@@ -131,7 +131,7 @@ def confusion_matrix_op(predictions, output, step_name='confusion_matrix'):
 def roc_op(predictions, output, step_name='roc'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-local-roc:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-local-roc:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--output', '%s/{{workflow.name}}/roc' % output,
             '--predictions', predictions,
@@ -142,7 +142,7 @@ def roc_op(predictions, output, step_name='roc'):
 def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name, step_name='deploy'):
     return dsl.ContainerOp(
         name=step_name,
-        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
+        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--cluster-name', 'tfx-taxi-pipeline-on-prem',
             '--model-path', model,
