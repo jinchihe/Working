@@ -9,7 +9,7 @@ def mnist_train_op(data_dir: str, model_dir: str,
                    learning_rate: float, step_name='Training'):
     return dsl.ContainerOp(
         name=step_name,
-        image='mnist_hjc:2.0',
+        image='mnist_hjc:1.9',
         arguments=[
             '/opt/model.py',
             '--tf-data-dir', data_dir,
