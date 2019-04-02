@@ -145,7 +145,7 @@ def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name, step
         image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:7775692adf28d6f79098e76e839986c9ee55dd61',
         arguments=[
             '--cluster-name', 'tfx-taxi-pipeline-on-prem',
-            '--model-export-path', '%s/export/export' % model,,
+            '--model-export-path', '%s/export/export' % model,
             '--server-name', tf_server_name,
             '--pvc-name', pvc_name,
         ]
