@@ -9,8 +9,6 @@ metadata:
 spec:
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/inject: null
       labels:
         app: mnist
         version: v1

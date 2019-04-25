@@ -24,7 +24,7 @@ vars:
     kind: ConfigMap
     name: mnist-map-serving-local
 - fieldref:
-    fieldPath: data.PVC_NAME
+    fieldPath: data.pvcName
   name: pvcName
   objref:
     apiVersion: v1
