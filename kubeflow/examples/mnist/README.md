@@ -626,10 +626,10 @@ kubectl describe service mnist-service
 
 The example comes with a simple web front end that can be used with your model.
 
-Enter `web_ui` derectory.
+Enter `front` derectory.
 
 ```
-cd web_ui
+cd front
 ```
 
 To deploy the web front end
