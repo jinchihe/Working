@@ -63,6 +63,10 @@ class TFJobTest(test_util.TestCase):
       k, v = pair.split("=", 1)
       if k == "namespace" or k == "image":
         util.run(["kustomize edit set", k, v], cwd=self.app_dir)        
+      elif k == "numPs":
+        util.run(["./definition.sh --numPs", v], cwd=self.app_dir)
+      elif k == "numWorkers":
+        util.run(["./definition.sh --numWorkers", v], cwd=self.app_dir)
       elif k == "secret":
         secretName, secretMountPath = v.split("=", 1)
         util.run(["kustomize edit add configmap", configmap, "--from-literal=secretName=", secretName],
