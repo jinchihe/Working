@@ -25,7 +25,7 @@ metadata:
   labels:
     app: mnist
     ksonnet.io/component: mnist-service
-  name: mnist-service
+  name: $(distName)
   namespace: kubeflow
 spec:
   ports:

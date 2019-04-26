@@ -17,6 +17,13 @@ configMapGenerator:
 
 vars:
 - fieldref:
+    fieldPath: data.name
+  name: distName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-serving-gcs
+- fieldref:
     fieldPath: data.modelBasePath
   name: modelBasePath
   objref:

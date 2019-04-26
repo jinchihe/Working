@@ -551,6 +551,12 @@ Enter the `serving/GCS` directory.
 cd serving/GCS
 ```
 
+Set a different name for the tf-serving.
+
+```
+kustomize edit add configmap mnist-map-serving-gcs --from-literal=name=mnist-gcs-dist
+```
+
 Set your model path
 
 ```
@@ -566,13 +572,13 @@ kustomize build . |kubectl apply -f -
 You can check the deployment by running
 
 ```
-kubectl describe deployments mnist-deploy-gcp
+kubectl describe deployments mnist-gcs-dist
 ```
 
-The service should make the `mnist-deploy-gcp` deployment accessible over port 9000
+The service should make the `mnist-gcs-dist` deployment accessible over port 9000
 
 ```
-kubectl describe service mnist-service
+kubectl describe service mnist-gcs-dist
 ```
 
 ### S3
